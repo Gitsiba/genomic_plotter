@@ -57,4 +57,4 @@ Would you like to add any of these next?
 - **GitHub banner**: I can help you write a short project tagline and description for your repo homepage
 
 You're building something clean, powerful, and reusable — let’s keep polishing it until it shines. Want to add batch mode or logging next?
->>>>>>> 9fc7909 (Update README)
+
