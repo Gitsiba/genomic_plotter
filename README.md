@@ -35,6 +35,24 @@ Prepare a numeric TSV matrix with one gene per row and normalized bins across co
 python scripts/plot_metagene.py --input data/gene_signal_matrix.tsv --out plots/metagene.png
 ```
 
+
+### BigWig metagene profile
+
+This script reads a BigWig signal track and BED6 gene intervals (same genome build). Each gene body is divided into a fixed number of bins; minus-strand genes are reversed so all profiles follow transcriptional orientation. Missing BigWig bases are ignored, and bins below the requested coverage threshold are omitted from the average.
+
+Install the dependency with the other requirements, then run:
+
+```bash
+python scripts/plot_bigwig_metagene.py \
+  --bigwig data/sample.bw \
+  --genes-bed data/genes.bed \
+  --bins 100 \
+  --out plots/bigwig_metagene.png \
+  --matrix-out plots/per_gene_signal.tsv
+```
+
+BED6 must contain chromosome, start, end, name, score, and strand columns. Coordinates are 0-based and half-open. The BED and BigWig must use matching genome builds and compatible chromosome names (for example, both using `chr1` rather than one using `1`). This script summarizes gene bodies; it does not create a TSS-centered profile or normalize BigWig tracks for you. Choose and document upstream normalization appropriate to the experiment.
+
 ### metaORF profile
 
 Input example:
@@ -103,7 +121,7 @@ Every script creates the output directory if needed, writes the PNG, and exits w
 python -m unittest discover -s tests -v
 ```
 
-GitHub Actions runs the unit tests and smoke-tests all four demo commands.
+GitHub Actions runs the unit tests, smoke-tests all four demo commands, and validates BigWig metagene BED parsing. A real BigWig integration test requires a compatible signal file and is not included in CI.
 
 ## Limitations
 
