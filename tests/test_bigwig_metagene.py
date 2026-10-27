@@ -1,4 +1,6 @@
 import importlib.util
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -72,9 +74,19 @@ class BigWigMetageneInputTests(unittest.TestCase):
             bw.close()
             bed = tmp / "genes.bed"
             bed.write_text("chr1\t0\t20\tGENE1\t0\t+\n", encoding="utf-8")
-            matrix, labels = MODULE.summarize_bigwig(bw_path, bed, bins=4, min_coverage=1.0)
-            self.assertEqual(matrix.shape, (1, 4))
-            self.assertEqual(labels, ["GENE1"])
+            out = tmp / "plots" / "metagene.png"
+            matrix_out = tmp / "plots" / "matrix.tsv"
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "--bigwig", str(bw_path),
+                 "--genes-bed", str(bed), "--bins", "4", "--min-coverage", "1.0",
+                 "--out", str(out), "--matrix-out", str(matrix_out)],
+                capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertTrue(out.is_file())
+            self.assertGreater(out.stat().st_size, 1000)
+            self.assertTrue(matrix_out.is_file())
+            self.assertIn("GENE1", matrix_out.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
